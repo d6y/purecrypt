@@ -21,6 +21,10 @@ object Encoding {
 
 final case class Bytes[T <: Encoding](value: Array[Byte]) {
   lazy val length = value.length
+  override def equals(o: Any) = o match {
+    case Bytes(v) => v sameElements value
+    case _ => false
+  }
 }
   
 case class Crypt() {
@@ -88,11 +92,13 @@ object Example {
 
     // A key:
     import javax.crypto.KeyGenerator
-    val keySize = 128
-    val gen = KeyGenerator.getInstance("AES")
-    gen.init(keySize)
-    val key = gen.generateKey()
-
+    val key = {
+      val keySize = 128
+      val gen = KeyGenerator.getInstance("AES")
+      gen.init(keySize)
+      gen.generateKey()
+    }
+  
     // A message:
     import java.nio.charset.StandardCharsets.UTF_8
     val msg = Bytes[Encoding.Unencrypted]("Hello".getBytes(UTF_8))
